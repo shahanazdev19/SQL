@@ -1,0 +1,31 @@
+--Find Which Table has Data . . . . . .
+select  
+t.name table_name,  
+s.name schema_name,  
+sum(p.rows) total_rows  
+from  
+sys.tables t  
+join sys.schemas s on (t.schema_id = s.schema_id)  
+join sys.partitions p on (t.object_id = p.object_id)  
+where p.index_id in (0,1)  
+group by t.name,s.name  
+having sum(p.rows) > 0;
+
+Find Column in All Table--
+
+SELECT name 
+FROM sysobjects 
+WHERE id IN ( SELECT id 
+              FROM syscolumns 
+              WHERE name like '%column_name%' )
+
+
+-- Find Foreign Key reference Alter script --
+
+SELECT 
+    'ALTER TABLE [' +  OBJECT_SCHEMA_NAME(parent_object_id) +
+    '].[' + OBJECT_NAME(parent_object_id) + 
+    '] DROP CONSTRAINT [' + name + ']'
+FROM sys.foreign_keys
+WHERE referenced_object_id = object_id('[far].[tblLocation]')
+
