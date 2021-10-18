@@ -1,0 +1,67 @@
+----Clear Case
+truncate table CMCaseDocuments
+truncate table CMSecondLevelReview
+truncate table CMCustomerActions
+truncate table CMReviewMemoComments
+truncate table CMCustomerRelated
+truncate table CMRFI
+truncate table CMNegetiveMedia
+truncate table CMMainAnalysis
+truncate table CMRFI
+truncate table CmAlertActions
+truncate table CMAlertComments
+truncate table CmAlertDocuments
+truncate table CmAlertRFI
+truncate table CMAlertNegetiveMedia
+DELETE FROM CmAlerts   DBCC CHECKIDENT (CmAlerts, RESEED, 0);
+DELETE FROM CMCustomerCase   DBCC CHECKIDENT (CMCustomerCase, RESEED, 0);
+DELETE AlertedTransactions
+DELETE IntegrityViolationLogs
+DELETE AmlIntegrationServiceLog
+
+-- FinCEN SAR
+
+DELETE [dbo].[FSARBranch] DBCC CHECKIDENT ([FSARBranch], RESEED, 0);
+DELETE [dbo].[FSARFinancialInstitution] DBCC CHECKIDENT ([FSARFinancialInstitution], RESEED, 0);
+DELETE [dbo].[FSARFilingInstitute] DBCC CHECKIDENT ([FSARFilingInstitute], RESEED, 0);
+
+DELETE [dbo].[FSARSubjectAlternateName] DBCC CHECKIDENT ([FSARSubjectAlternateName], RESEED, 0);
+DELETE [dbo].[FSARSubjectEmailAddress] DBCC CHECKIDENT ([FSARSubjectEmailAddress], RESEED, 0);
+DELETE [dbo].[FSARSubjectIdentificationForm] DBCC CHECKIDENT ([FSARSubjectIdentificationForm], RESEED, 0);
+DELETE [dbo].[FSARSubjectRelationWithInstitution] DBCC CHECKIDENT ([FSARSubjectRelationWithInstitution], RESEED, 0);
+DELETE [dbo].[FSARSubjectTelephoneNumber] DBCC CHECKIDENT ([FSARSubjectTelephoneNumber], RESEED, 0);
+DELETE [dbo].[FSARSubjectWebsiteURLAddress] DBCC CHECKIDENT ([FSARSubjectWebsiteURLAddress], RESEED, 0);
+DELETE [dbo].[FSARPart1SubjectAddress] DBCC CHECKIDENT ([FSARPart1SubjectAddress], RESEED, 0);
+DELETE [dbo].[FSARTINAndAccount] DBCC CHECKIDENT ([FSARTINAndAccount], RESEED, 0);
+DELETE [dbo].[FSARSubject] DBCC CHECKIDENT ([FSARSubject], RESEED, 0);
+
+DELETE [dbo].[FSAROtherCommodityType] DBCC CHECKIDENT ([FSAROtherCommodityType], RESEED, 0);
+DELETE [dbo].[FSAROtherCUSIPNumber] DBCC CHECKIDENT ([FSAROtherCUSIPNumber], RESEED, 0);
+DELETE [dbo].[FSAROtherIPAddress] DBCC CHECKIDENT ([FSAROtherIPAddress], RESEED, 0);
+DELETE [dbo].[FSAROtherMarket] DBCC CHECKIDENT ([FSAROtherMarket], RESEED, 0);
+DELETE [dbo].[FSAROtherProductOrInstrument] DBCC CHECKIDENT ([FSAROtherProductOrInstrument], RESEED, 0);
+
+DELETE [dbo].[FSARTransmitter] DBCC CHECKIDENT ([FSARTransmitter], RESEED, 0);
+DELETE [dbo].[FSARSummary] DBCC CHECKIDENT ([FSARSummary], RESEED, 0);
+DELETE [dbo].[FSARReview] DBCC CHECKIDENT ([FSARReview], RESEED, 0);
+DELETE [dbo].[FSAR] DBCC CHECKIDENT ([FSAR], RESEED, 0); 
+  
+--Customer and Related Party
+DELETE FROM Transactions DBCC CHECKIDENT (Transactions, RESEED, 0);
+delete from CustomerAccounts DBCC CHECKIDENT (CustomerAccounts, RESEED, 0);
+DELETE FROM AccountInformations DBCC CHECKIDENT (AccountInformations, RESEED, 0);
+TRUNCATE TABLE AccountRisk ; 
+DELETE FROM CustomerAccounts DBCC CHECKIDENT (CustomerAccounts, RESEED, 0);
+TRUNCATE TABLE RelatedPartyReviewHistory;
+DELETE FROM RelatedPartyScreening DBCC CHECKIDENT (RelatedPartyScreening, RESEED, 0);
+TRUNCATE TABLE CustomerAccountsRelPartyRelationship;
+DELETE FROM RelatedPartyInformations DBCC CHECKIDENT (RelatedPartyInformations, RESEED, 0);
+DELETE FROM CustomerInformations DBCC CHECKIDENT (CustomerInformations, RESEED, 0);
+
+--TRANSACTION
+
+--DELETE FROM TransactionsMain	DBCC CHECKIDENT (TransactionsMain, RESEED, 0); 
+
+--DELETE FROM CustomerAccounts DBCC CHECKIDENT (CustomerAccounts, RESEED, 0); 
+--DELETE FROM AccountInformations 	DBCC CHECKIDENT (AccountInformations, RESEED, 0); 
+--DELETE FROM CustomerInformations   	DBCC CHECKIDENT (CustomerInformations   , RESEED, 0)
