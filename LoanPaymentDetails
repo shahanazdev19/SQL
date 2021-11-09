@@ -1,0 +1,67 @@
+USE [Smart_v4_CCDA_Test]
+GO
+/****** Object:  StoredProcedure [dbo].[GetLoanDetailsReport]    Script Date: 11/9/2021 1:17:21 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER Procedure [dbo].[GetLoanDetailsReport]
+	@FromDate as datetime2 ,
+	@ToDate as datetime2 ,
+	@BranchId as int =0,
+	@DepartmentId as int =0,
+    @EmployeeId as int=0 ,	
+	@LoanTypeId as int=0 
+	AS
+	Begin	
+			select Id, EmployeeName, LoanType, sum(OpeningBalanceOfLoan) OpeningBalanceOfLoan,sum(OpeningBalanceOfInterest) OpeningBalanceOfInterest
+			,case when sum(OpeningBalanceOfLoan)>0 then 0 else sum(DisbursedLoanDuringThePeriod) end as DisbursedLoanDuringThePeriod
+			,case when sum(OpeningBalanceOfInterest)>0 then 0 else sum(DisbursedLoanInterestDuringThePeriod) end as DisbursedInterestDuringThePeriod,
+			sum(RecoveredLoanDuringThePeriod) RecoveredLoanDuringThePeriod,sum(RecoveredInterestDuringThePeriod) RecoveredInterestDuringThePeriod 
+			,(sum(OpeningBalanceOfLoan)+(case when sum(OpeningBalanceOfLoan)>0 then 0 else sum(DisbursedLoanDuringThePeriod) end)-sum(RecoveredLoanDuringThePeriod)) ClosingBalanceOfLoan
+			,(sum(OpeningBalanceOfInterest)+(case when sum(OpeningBalanceOfInterest)>0 then 0 else sum(DisbursedLoanInterestDuringThePeriod) end)-sum(RecoveredInterestDuringThePeriod)) ClosingBalanceOfInterest
+			from (
+			(
+				select l.Id,CONCAT(e.EmployeeId,'-',e.FirstName,IIF(e.MiddleName=NULL,'',' '+e.MiddleName),
+				IIF(e.LastName=NULL,'',' '+e.LastName))AS EmployeeName,lt.Name LoanType 
+				, sum(ISNULL(sl.PrincipleAmount,0)) as OpeningBalanceOfLoan,sum(ISNULL(sl.InterestAmount,0)) OpeningBalanceOfInterest
+				, 0 as DisbursedLoanDuringThePeriod, 0 as DisbursedLoanInterestDuringThePeriod
+				, 0 as RecoveredLoanDuringThePeriod,0 as RecoveredInterestDuringThePeriod 
+				from dbo.PRLoanPayments l
+				inner join dbo.PRLoanTypes lt on lt.Id=l.LoanTypeId
+				inner join dbo.Employees e on e.Id = l.EmployeeId
+				inner join dbo.Branches b on e.BranchId = b.id
+				inner join PRInterestofLoanRepayments lr on l.Id=lr.LoanPaymentId and l.CompanyId=lr.CompanyId
+				left join SalaryProcessLoanDetails sl on sl.LoanPaymentId=l.Id and sl.EmployeeId=l.EmployeeId and sl.LoanTypeId=l.LoanTypeId
+				where lr.LoanRepaymentDate<@FromDate 
+				and (@BranchId IS NULL OR @BranchId=0 OR  e.BranchId=@BranchId)
+				and (@DepartmentId IS NULL OR @DepartmentId=0 OR  e.DepartmentId=@DepartmentId)
+				and (@EmployeeId IS NULL OR @EmployeeId=0 OR  e.Id=@EmployeeId)
+				and (@LoanTypeId IS NULL OR @LoanTypeId=0 OR l.LoanTypeId=@LoanTypeId)
+				group by e.EmployeeId,e.FirstName,e.MiddleName,e.LastName,l.Id,
+				lt.Name,lr.LoanRepaymentDate,l.LoanAmount,l.InterestAmount
+		 ) union
+		 (
+				select l.Id,CONCAT(e.EmployeeId,'-',e.FirstName,IIF(e.MiddleName=NULL,'',' '+e.MiddleName),
+				IIF(e.LastName=NULL,'',' '+e.LastName))AS EmployeeName,lt.Name LoanType 
+				,0 as OpeningBalanceOfLoan,0 OpeningBalanceOfInterest
+				,l.LoanAmount as DisbursedLoanDuringThePeriod, l.InterestAmount as DisbursedLoanInterestDuringThePeriod
+				,sum(ISNULL(sl.PrincipleAmount,0)) as RecoveredLoanDuringThePeriod,sum(ISNULL(sl.InterestAmount,0)) as RecoveredInterestDuringThePeriod
+				from dbo.PRLoanPayments l
+				inner join dbo.PRLoanTypes lt on lt.Id=l.LoanTypeId
+				inner join dbo.Employees e on e.Id = l.EmployeeId
+				inner join dbo.Branches b on e.BranchId = b.id
+				inner join PRInterestofLoanRepayments lr on l.Id=lr.LoanPaymentId and l.CompanyId=lr.CompanyId
+				left join SalaryProcessLoanDetails sl on sl.LoanPaymentId=l.Id and sl.EmployeeId=l.EmployeeId and sl.LoanTypeId=l.LoanTypeId
+				where lr.LoanRepaymentDate BETWEEN @FromDate AND @ToDate
+				and (@BranchId IS NULL OR @BranchId=0 OR  e.BranchId=@BranchId)
+				and (@DepartmentId IS NULL OR @DepartmentId=0 OR  e.DepartmentId=@DepartmentId)
+				and (@EmployeeId IS NULL OR @EmployeeId=0 OR  e.Id=@EmployeeId)
+				and (@LoanTypeId IS NULL OR @LoanTypeId=0 OR l.LoanTypeId=@LoanTypeId)
+				group by e.EmployeeId,e.FirstName,e.MiddleName,e.LastName,l.Id,
+				lt.Name,lr.LoanRepaymentDate,l.LoanAmount,l.InterestAmount
+		  )
+ ) aa
+ group by EmployeeName, LoanType,Id
+
+End
